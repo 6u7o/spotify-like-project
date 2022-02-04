@@ -7,7 +7,7 @@ import Favorites from './pages/Favorites';
 import Profile from './pages/Profile';
 import ProfileEdit from './pages/ProfileEdit';
 import NotFound from './pages/NotFound';
-import { createUser } from './services/userAPI';
+import { createUser, getUser } from './services/userAPI';
 import Loading from './components/Loading';
 
 class App extends React.Component {
@@ -18,7 +18,12 @@ class App extends React.Component {
       isDisabled: true,
       logged: false,
       received: false,
+      userNameApp: '',
     };
+  }
+
+  componentDidMount() {
+    this.nameForHeader();
   }
 
   onInputChange = ({ target }) => {
@@ -48,22 +53,79 @@ class App extends React.Component {
     }
   }
 
+  nameForHeader = async () => {
+    // const { userNameApp } = this.state;
+    const response = await getUser();
+    const reposName = await response.name;
+    // return response;
+    // console.log(response.name);
+    this.setState({
+      userNameApp: reposName,
+    }/* , () => console.log(userNameApp) */);
+  }
+
   render() {
     const {
       logged,
       info,
       isDisabled,
       received,
+      userNameApp,
     } = this.state;
+
+    if (!userNameApp) {
+      console.log('vazio');
+    } else {
+      console.log('com valor');
+    }
 
     return (
       <BrowserRouter>
         <Switch>
-          <Route path="/search" component={ Search } />
-          <Route path="/album/:id" component={ Album } />
+          {!userNameApp ? <Loading /> : (
+            <Route
+              path="/search"
+              render={ () => (
+                <Search userNamePage={ userNameApp } />
+              ) }
+            />
+          )}
+          {/* <Route
+            path="/search"
+            render={ () => (
+              <Search userNamePage={ userNameApp } />
+            ) }
+          /> */}
+          <Route
+            path="/album/:id"
+            render={ () => (
+              <Album userNamePage={ userNameApp } />
+            ) }
+          />
+          <Route
+            path="/favorites"
+            render={ () => (
+              <Favorites userNamePage={ userNameApp } />
+            ) }
+          />
+          <Route
+            path="/profile"
+            render={ () => (
+              <Profile userNamePage={ userNameApp } />
+            ) }
+          />
+          <Route
+            path="/profile/edit"
+            render={ () => (
+              <ProfileEdit userNamePage={ userNameApp } />
+            ) }
+          />
+
+          {/* <Route path="/album/:id" component={ Album } />
           <Route path="/favorites" component={ Favorites } />
           <Route path="/profile" component={ Profile } />
-          <Route path="/profile/edit" component={ ProfileEdit } />
+          <Route path="/profile/edit" component={ ProfileEdit } /> */}
+
           {logged ? <Loading /> : null}
           {received ? <Redirect to="/search" /> : null}
           <Route
