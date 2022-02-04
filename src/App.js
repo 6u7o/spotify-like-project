@@ -73,12 +73,6 @@ class App extends React.Component {
       userNameApp,
     } = this.state;
 
-    if (!userNameApp) {
-      console.log('vazio');
-    } else {
-      console.log('com valor');
-    }
-
     return (
       <BrowserRouter>
         <Switch>
