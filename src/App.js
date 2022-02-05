@@ -92,8 +92,8 @@ class App extends React.Component {
           /> */}
           <Route
             path="/album/:id"
-            render={ () => (
-              <Album userNamePage={ userNameApp } />
+            render={ (props) => (
+              <Album { ...props } userNamePage={ userNameApp } />
             ) }
           />
           <Route

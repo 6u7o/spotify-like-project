@@ -90,9 +90,6 @@ class Search extends React.Component {
               <div
                 key={ it.collectionId }
               >
-                {/* <h3>
-                  {it.collectionName}
-                </h3> */}
                 <Link
                   data-testid={ `link-to-album-${it.collectionId}` }
                   to={ `/album/${it.collectionId}` }
