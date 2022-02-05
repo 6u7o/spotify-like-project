@@ -76,14 +76,6 @@ class App extends React.Component {
     return (
       <BrowserRouter>
         <Switch>
-          {!userNameApp ? <Loading /> : (
-            <Route
-              path="/search"
-              render={ () => (
-                <Search userNamePage={ userNameApp } />
-              ) }
-            />
-          )}
           {/* <Route
             path="/search"
             render={ () => (
@@ -103,18 +95,17 @@ class App extends React.Component {
             ) }
           />
           <Route
-            path="/profile"
-            render={ () => (
-              <Profile userNamePage={ userNameApp } />
-            ) }
-          />
-          <Route
             path="/profile/edit"
             render={ () => (
               <ProfileEdit userNamePage={ userNameApp } />
             ) }
           />
-
+          <Route
+            path="/profile"
+            render={ () => (
+              <Profile userNamePage={ userNameApp } />
+            ) }
+          />
           {/* <Route path="/album/:id" component={ Album } />
           <Route path="/favorites" component={ Favorites } />
           <Route path="/profile" component={ Profile } />
@@ -136,6 +127,14 @@ class App extends React.Component {
               />
             ) }
           />
+          {!userNameApp ? <Loading /> : (
+            <Route
+              path="/search"
+              render={ () => (
+                <Search userNamePage={ userNameApp } />
+              ) }
+            />
+          )}
 
           <Route exact path="*" component={ NotFound } />
         </Switch>

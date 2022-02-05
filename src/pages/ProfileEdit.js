@@ -6,14 +6,12 @@ class ProfileEdit extends React.Component {
   render() {
     const { userNamePage } = this.props;
     return (
-      <>
+      <div
+        data-testid="page-profile-edit"
+      >
         <Header userName={ userNamePage } />
-        <div
-          data-testid="page-profile-edit"
-        >
-          ProfileEdit
-        </div>
-      </>
+        ProfileEdit
+      </div>
     );
   }
 }
