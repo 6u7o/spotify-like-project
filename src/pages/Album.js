@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Header from '../components/Header';
 import getMusics from '../services/musicsAPI';
 import MusicCard from '../components/MusicCard';
-import { addSong } from '../services/favoriteSongsAPI';
+import { addSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
 import Loading from '../components/Loading';
 
 class Album extends React.Component {
@@ -100,6 +100,36 @@ class Album extends React.Component {
     ));
   }
 
+  getStorageSongs = async () => {
+    // const { allCheckboxes } = this.state;
+    const response = await getFavoriteSongs();
+    const onlyNames = response.map((item) => item.trackName);
+    // console.log(allCheckboxes);
+    // console.log(onlyNames);
+    // this.setState({
+    //   arrSongs: response,
+    // });
+    onlyNames.forEach((it) => {
+      this.setState((prevState) => ({
+        allCheckboxes: {
+          ...prevState.allCheckboxes,
+          [it]: true,
+        },
+      }));
+    });
+
+    // return arrSongs.filter((item) => item.trackName !== undefined).map((item) => (
+    //   <MusicCard
+    //     key={ item.trackId }
+    //     musicName={ item.trackName }
+    //     preview={ item.previewUrl }
+    //     songId={ item.trackId }
+    //     checkFunc={ this.checkboxFunc }
+    //     isChecked={ allCheckboxes[item.trackName] }
+    //   />
+    // ));
+  }
+
   render() {
     const { userNamePage, match } = this.props;
 
@@ -114,12 +144,14 @@ class Album extends React.Component {
 
     if (once === 0) {
       this.albumSongsRequest(id);
+      this.getStorageSongs();
     }
 
-    let songList;
-    if (once >= 2) {
-      songList = this.addSongs();
-    }
+    // let songList;
+    // if (once === 2) {
+    //   songList = this.addSongs();
+    //   // this.getStorageSongs();
+    // }
 
     // if (once === 1) {
     //   this.checkForAllSongs();
@@ -138,7 +170,7 @@ class Album extends React.Component {
               {<p data-testid="album-name">{albumName}</p>}
             </div>
             <div>
-              {songList}
+              {this.addSongs()}
             </div>
           </>
         )}
