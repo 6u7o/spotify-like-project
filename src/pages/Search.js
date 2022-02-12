@@ -1,11 +1,10 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import searchAlbumsAPI from '../services/searchAlbumsAPI';
 import Loading from '../components/Loading';
 
-class Search extends React.Component {
+export default class Search extends Component {
   constructor() {
     super();
     this.state = {
@@ -43,15 +42,12 @@ class Search extends React.Component {
         arrAlb: response,
       });
     }
-    // console.log(response);
     this.setState({
       inputValue: '',
     });
   }
 
   render() {
-    const { userNamePage } = this.props;
-
     const {
       btnDisabled,
       inputValue,
@@ -62,58 +58,8 @@ class Search extends React.Component {
 
     return (
       <>
-        {loading ? <Loading /> : (
-          <>
-            <Header userName={ userNamePage } />
-            <div
-              data-testid="page-search"
-            >
-              search
-            </div>
-            <form>
-              <input
-                value={ inputValue }
-                onChange={ this.handleChange }
-                data-testid="search-artist-input"
-              />
-              <button
-                disabled={ btnDisabled }
-                onClick={ this.clickSearchRequest }
-                type="button"
-                data-testid="search-artist-button"
-              >
-                Pesquisar
-              </button>
-            </form>
-            {arrAlb.length !== 0 ? responseText : null}
-            {arrAlb.length === 0 ? 'Nenhum álbum foi encontrado' : arrAlb.map((it) => (
-              <div
-                key={ it.collectionId }
-              >
-                <Link
-                  data-testid={ `link-to-album-${it.collectionId}` }
-                  to={ `/album/${it.collectionId}` }
-                >
-                  {it.collectionName}
-                </Link>
-                <img
-                  src={ it.artworkUrl100 }
-                  alt={ it.collectionName }
-                />
-                <p>
-                  {it.artistName}
-                </p>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* <Header userName={ userNamePage } />
-        <div
-          data-testid="page-search"
-        >
-          search
-        </div>
+        <Header />
+        <div data-testid="page-search">Search</div>
         <form>
           <input
             value={ inputValue }
@@ -128,14 +74,34 @@ class Search extends React.Component {
           >
             Pesquisar
           </button>
-        </form> */}
+        </form>
+        <p>{responseText}</p>
+        {loading ? <Loading /> : (
+          <div>
+            {arrAlb.length === 0 ? 'Nenhum álbum foi encontrado' : (
+              arrAlb.map((it) => (
+                <div
+                  key={ it.collectionId }
+                >
+                  <Link
+                    data-testid={ `link-to-album-${it.collectionId}` }
+                    to={ `/album/${it.collectionId}` }
+                  >
+                    {it.collectionName}
+                  </Link>
+                  <img
+                    src={ it.artworkUrl100 }
+                    alt={ it.collectionName }
+                  />
+                  <p>
+                    {it.artistName}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </>
     );
   }
 }
-
-Search.propTypes = {
-  userNamePage: PropTypes.string.isRequired,
-};
-
-export default Search;

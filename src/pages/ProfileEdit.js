@@ -1,23 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import Header from '../components/Header';
 
-class ProfileEdit extends React.Component {
+export default class ProfileEdit extends Component {
   render() {
-    const { userNamePage } = this.props;
     return (
-      <div
-        data-testid="page-profile-edit"
-      >
-        <Header userName={ userNamePage } />
-        ProfileEdit
-      </div>
+      <>
+        <Header />
+        <div data-testid="page-profile-edit">ProfileEdit</div>
+      </>
     );
   }
 }
-
-ProfileEdit.propTypes = {
-  userNamePage: PropTypes.string.isRequired,
-};
-
-export default ProfileEdit;

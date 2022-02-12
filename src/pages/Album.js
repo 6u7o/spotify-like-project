@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Header from '../components/Header';
 import getMusics from '../services/musicsAPI';
 import MusicCard from '../components/MusicCard';
-import { addSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
+import { addSong, getFavoriteSongs, removeSong } from '../services/favoriteSongsAPI';
 import Loading from '../components/Loading';
 
 class Album extends React.Component {
@@ -19,6 +19,22 @@ class Album extends React.Component {
     };
   }
 
+  async componentDidMount() {
+    const { match: { params: { id } } } = this.props;
+
+    const response2 = await getFavoriteSongs();
+    const response = await getMusics(id);
+
+    const artist = response[0].artistName;
+    const album = response[0].collectionName;
+    this.setState({
+      artistName: artist,
+      albumName: album,
+      arrSongs: response,
+      allCheckboxes: response2,
+    });
+  }
+
   albumSongsRequest = async (albumId) => {
     const response = await getMusics(albumId);
 
@@ -32,32 +48,41 @@ class Album extends React.Component {
     this.setState((prev) => ({
       once: prev.once + 1,
     }));
-    this.checkForAllSongs();
   }
 
   checkboxFunc = async ({ target }) => {
     this.setState({
       loading: true,
     });
-    // https://stackoverflow.com/questions/43638938/updating-an-object-with-setstate-in-react
-    // usei pra aprender a sintaxe para acumular dentro de um objeto
-    this.setState((prevState) => ({
-      allCheckboxes: {
-        ...prevState.allCheckboxes,
-        [target.name]: true,
-      },
-    }));
 
-    const { id } = target;
-    const { arrSongs } = this.state;
-    const filteredSong = arrSongs.find((item) => item.trackId === Number(id));
-    // addSong(filteredSong);
-
-    const response = await addSong(filteredSong);
+    const { name, checked } = target;
+    const { arrSongs, allCheckboxes } = this.state;
+    const filteredSong = arrSongs.find((item) => item.trackName === name);
+    if (checked) {
+      this.setState((prevState) => ({
+        allCheckboxes: [...prevState.allCheckboxes, filteredSong],
+      }));
+      const response = await addSong(filteredSong);
+      if (response === 'OK') {
+        return this.setState({
+          loading: false,
+        });
+      }
+    } else {
+      const newArr = allCheckboxes.filter((it) => it.trackId !== filteredSong.trackId);
+      const response2 = await removeSong(filteredSong);
+      this.setState({
+        allCheckboxes: newArr,
+      });
+      if (response2 === 'OK') {
+        return this.setState({
+          loading: false,
+        });
+      }
+    }
     if (response === 'OK') {
       return this.setState({
         loading: false,
-        // received: true,
       });
     }
   }
@@ -72,91 +97,17 @@ class Album extends React.Component {
         return acc;
       }, {}),
     });
-    // this.setState({
-    //   allCheckboxes: newArr.reduce((acc, it) => {
-    //     [...acc, it]
-    //     return acc;
-    //   }, []),
-    // });
-  }
-
-  addSongs = () => {
-    const { arrSongs, allCheckboxes } = this.state;
-
-    // console.log(once);
-    // console.log(arrSongs[2].trackName);
-    // console.log(allCheckboxes[arrSongs[2].trackName]);
-    // console.log(allCheckboxes);
-
-    return arrSongs.filter((item) => item.trackName !== undefined).map((item) => (
-      <MusicCard
-        key={ item.trackId }
-        musicName={ item.trackName }
-        preview={ item.previewUrl }
-        songId={ item.trackId }
-        checkFunc={ this.checkboxFunc }
-        isChecked={ allCheckboxes[item.trackName] }
-      />
-    ));
-  }
-
-  getStorageSongs = async () => {
-    // const { allCheckboxes } = this.state;
-    const response = await getFavoriteSongs();
-    const onlyNames = response.map((item) => item.trackName);
-    // console.log(allCheckboxes);
-    // console.log(onlyNames);
-    // this.setState({
-    //   arrSongs: response,
-    // });
-    onlyNames.forEach((it) => {
-      this.setState((prevState) => ({
-        allCheckboxes: {
-          ...prevState.allCheckboxes,
-          [it]: true,
-        },
-      }));
-    });
-
-    // return arrSongs.filter((item) => item.trackName !== undefined).map((item) => (
-    //   <MusicCard
-    //     key={ item.trackId }
-    //     musicName={ item.trackName }
-    //     preview={ item.previewUrl }
-    //     songId={ item.trackId }
-    //     checkFunc={ this.checkboxFunc }
-    //     isChecked={ allCheckboxes[item.trackName] }
-    //   />
-    // ));
   }
 
   render() {
-    const { userNamePage, match } = this.props;
-
-    const { id } = match.params;
+    const { userNamePage } = this.props;
+    const { arrSongs, allCheckboxes } = this.state;
 
     const {
       artistName,
       albumName,
-      once,
       loading,
     } = this.state;
-
-    if (once === 0) {
-      this.albumSongsRequest(id);
-      this.getStorageSongs();
-    }
-
-    // let songList;
-    // if (once === 2) {
-    //   songList = this.addSongs();
-    //   // this.getStorageSongs();
-    // }
-
-    // if (once === 1) {
-    //   this.checkForAllSongs();
-    // }
-
     return (
       <>
         <Header userName={ userNamePage } />
@@ -170,7 +121,18 @@ class Album extends React.Component {
               {<p data-testid="album-name">{albumName}</p>}
             </div>
             <div>
-              {this.addSongs()}
+              {arrSongs.filter((item) => item.trackName !== undefined).map((item) => (
+                <MusicCard
+                  key={ item.trackId }
+                  musicName={ item.trackName }
+                  preview={ item.previewUrl }
+                  songId={ item.trackId }
+                  checkFunc={ this.checkboxFunc }
+                  isChecked={ allCheckboxes
+                    .some((it) => it.trackName === item.trackName) }
+
+                />
+              ))}
             </div>
           </>
         )}
