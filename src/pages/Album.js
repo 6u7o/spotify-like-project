@@ -87,18 +87,6 @@ class Album extends React.Component {
     }
   }
 
-  checkForAllSongs = () => {
-    const { arrSongs } = this.state;
-
-    const newArr = arrSongs.filter((item) => item.trackName !== undefined);
-    this.setState({
-      allCheckboxes: newArr.reduce((acc, it) => {
-        acc[it.trackName] = false;
-        return acc;
-      }, {}),
-    });
-  }
-
   render() {
     const { userNamePage } = this.props;
     const { arrSongs, allCheckboxes } = this.state;
